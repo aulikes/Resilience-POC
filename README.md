@@ -108,3 +108,23 @@ El componente `PaymentManager()` ejecuta una lógica controlada que:
 - Panel web de estado en tiempo real
 
 ---
+
+## 🧠 Comportamiento detallado del flujo de Circuit Breaker
+
+1. Cuando `contador % modular ∈ (1,2,3,4,5)`, el circuito está **CLOSED**.
+2. Cuando `contador % modular ∈ (6,7,8)`, el circuito sigue **CLOSED**, aunque estas peticiones **fallan**.
+3. Al superar el porcentaje establecido en `failureRateThreshold`, el circuito pasa a **OPEN**.
+4. Cuando el circuito está en **OPEN**, no se llama a `processPayment`, sino que se ejecuta directamente `fallbackPayment`.
+5. En la petición número **9**, el circuito ya está **OPEN**.
+6. El circuito pasa de **OPEN** a **HALF-OPEN** después de esperar el tiempo definido en `waitDurationInOpenState`.
+7. Ese tiempo empieza a contarse desde el paso 3 (después de la llamada 8).
+8. Como el `waitDurationInOpenState` es de **35 segundos**, las peticiones **9, 10 y 11** pasan directo a `fallbackPayment`.
+9. La petición **12** se ejecuta con el circuito en **HALF-OPEN** y entra a `processPayment` con éxito.
+10. La petición **13** también entra en estado **HALF-OPEN**, pero falla.
+11. La petición **14** entra en estado **HALF-OPEN** y se ejecuta bien.
+12. Como **no se completaron con éxito** todas las llamadas permitidas en `permittedNumberOfCallsInHalfOpenState`, el circuito vuelve a **OPEN**.
+13. El circuito pasará nuevamente a **HALF-OPEN** tras esperar `waitDurationInOpenState`.
+14. Por eso, las peticiones **15, 16 y 17** siguen yendo directo a `fallbackPayment`.
+15. Las peticiones **18, 19 y 20** se ejecutan en estado **HALF-OPEN** y todas son exitosas.
+16. Se cumple el mínimo de llamadas exitosas requerido.
+17. El circuito vuelve finalmente a estado **CLOSED**.

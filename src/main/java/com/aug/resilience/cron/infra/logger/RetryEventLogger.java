@@ -1,4 +1,4 @@
-package com.aug.resilience.cron.infra.observability;
+package com.aug.resilience.cron.infra.logger;
 
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryRegistry;
@@ -16,6 +16,21 @@ import org.springframework.stereotype.Component;
 public class RetryEventLogger {
 
     private final RetryRegistry retryRegistry;
+
+//    @PostConstruct
+//    public void logRetryAttempts() {
+//        retryRegistry.getAllRetries().forEach(retry -> {
+//            retry.getEventPublisher()
+//                    .onRetry(event -> log.info(
+//                            "[RETRY][{}] Attempt #{} - Cause: {}",
+//                            event.getName(),
+//                            event.getNumberOfRetryAttempts(),
+//                            event.getLastThrowable() != null
+//                                    ? event.getLastThrowable().getClass().getSimpleName()
+//                                    : "unknown"
+//                    ));
+//        });
+//    }
 
     @PostConstruct
     public void registerRetryEvents() {
