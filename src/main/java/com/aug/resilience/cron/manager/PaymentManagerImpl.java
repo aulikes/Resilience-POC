@@ -56,7 +56,7 @@ public class PaymentManagerImpl implements PaymentManager {
 
      */
     @Override
-//    @Retry(name = "processPaymentRetry")
+    @Retry(name = "processPaymentRetry")
     @CircuitBreaker(name = "processPayment", fallbackMethod = "fallbackPayment")
     public void processPayment() throws TimeoutException {
         log.info("CALL processPayment INIT, COUNT: {}, CIRCUIT BREAKER ESTATE: {}", contador, circuitBreaker.getState());
