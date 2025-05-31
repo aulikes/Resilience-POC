@@ -6,6 +6,8 @@ import io.github.resilience4j.circuitbreaker.event.*;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 @Log4j2
@@ -28,13 +30,11 @@ public class CircuitBreakerEventLogger {
 //        });
 //    }
 
-    @PostConstruct
-    public void registerCircuitBreakerEvents() {
-        log.info("CircuitBreakerEventLogger - Registrando listeners de eventos de circuit breaker");
-
-        CircuitBreaker circuitBreaker = circuitBreakerRegistry.circuitBreaker("processPayment");
-
-        circuitBreaker.getEventPublisher()
+    @EventListener(ApplicationReadyEvent.class)
+    public void onApplicationReady() {
+        log.info("CircuitBreakerEventLogger - Registrando listeners de eventos");
+        CircuitBreaker cb = circuitBreakerRegistry.circuitBreaker("processPayment");
+        cb.getEventPublisher()
                 .onStateTransition(this::onStateTransition)
                 .onCallNotPermitted(this::onCallNotPermitted)
                 .onError(this::onError)
@@ -49,7 +49,7 @@ public class CircuitBreakerEventLogger {
     }
 
     private void onCallNotPermitted(CircuitBreakerOnCallNotPermittedEvent event) {
-        log.error("CB [{}] - CALL BLOCKED (OPEN or DISABLED): Circuit breaker did not permit the call.",
+        log.error("CB [{}] - CALL BLOCKED (OPEN or DISABLED)",
                 event.getCircuitBreakerName());
     }
 
