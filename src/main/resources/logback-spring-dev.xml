@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Consola con colores y formato detallado -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                %d{HH:mm:ss.SSS} [%highlight(%-5level)] [%X{traceId}] %cyan(%logger{36}) - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <!-- Nivel DEBUG para la capa web y recursos -->
+    <logger name="org.springframework.web" level="DEBUG" />
+    <logger name="org.springframework.web.servlet.resource" level="DEBUG"/>
+    <logger name="org.springframework.web.servlet.DispatcherServlet" level="DEBUG"/>
+    <logger name="org.springframework.boot.devtools" level="INFO"/>
+    <logger name="org.hibernate.SQL" level="WARN"/>
+    <logger name="com.intcomex" level="DEBUG"/>
+
+    <!-- Nivel global -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

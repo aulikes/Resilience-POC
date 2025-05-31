@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: resilience
+
+server:
+  port: 8080  # Port where the application will start (default is 8080)
+  servlet:
+    context-path: /resilience-demo  # Base path of the application (all endpoints will be accessible under /resilience-demo)
+
+# Formats JSON output with indentation (for better readability in logs/responses)
+jackson:
+  serialization:
+    indent_output: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"   # Exposes all Spring Actuator endpoints over HTTP
+  endpoint:
+    health:
+      show-details: always  # Shows full details of the health endpoint (/actuator/health)
+  health:
+    circuitbreakers:
+      enabled: true  # Enables the health check status for Circuit Breakers in Actuator
+
+# -------- GLOBAL CONFIGURATION FOR CIRCUIT BREAKERS (RESILIENCE4J) --------
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true  # Enables Circuit Breaker health status to be available through Actuator
+        slidingWindowSize: 10  # Number of calls that the Circuit Breaker will evaluate to calculate the failure rate (sliding window)
+        minimumNumberOfCalls: 5  # Minimum number of calls required before the Circuit Breaker evaluates whether to open or not
+        permittedNumberOfCallsInHalfOpenState: 3  # Number of calls allowed while in HALF_OPEN state to test if the service has recovered
+        automaticTransitionFromOpenToHalfOpenEnabled: true  # If enabled, the Circuit Breaker will automatically move from OPEN to HALF_OPEN after the configured time
+        waitDurationInOpenState: 30s  # Duration the Circuit Breaker remains in OPEN state before transitioning to HALF_OPEN
+        failureRateThreshold: 50  # Failure rate percentage (e.g. 50%) that triggers the transition from CLOSED to OPEN
+        eventConsumerBufferSize: 10  # Size of the event buffer used to publish events to consumers (such as logs, metrics, etc.)
+        recordExceptions:
+          - java.util.concurrent.TimeoutException
+          - java.lang.RuntimeException
+#        ignoreExceptions:
+#          - com.aug.ecommerce.domain.exception.ErrorNegocioException
+
+  retry:
+    instances:
+      pasarelaPago:
+        maxAttempts: 3           # Total attempts: 1 original + 2 retries
+        waitDuration: 1s         # Wait time of 1 second between attempts
+        retryExceptions:
+          - java.util.concurrent.TimeoutException
+          - java.lang.RuntimeException
+#        ignoreExceptions:
+#          - com.aug.ecommerce.domain.exception.ErrorNegocioException
