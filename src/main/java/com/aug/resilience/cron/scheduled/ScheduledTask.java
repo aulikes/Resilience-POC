@@ -24,27 +24,28 @@ public class ScheduledTask {
     @PostConstruct
     public void iniciarEjecucionProgramada() {
         this.executorService = Executors.newSingleThreadScheduledExecutor();
-        AtomicInteger cont = new AtomicInteger();
-        int DELAY_INIT_SEG = 10;
+        AtomicInteger cont = new AtomicInteger(0);
+        int DELAY_INIT_SEG = 20;
         int PERIOD_SEG = 10;
+        int FINAL_TEST_SEG = 720;
 
         futureTask = executorService.scheduleAtFixedRate(() -> {
             try {
                 log.info("**************************************************");
                 cont.getAndIncrement();
-                log.info("Ejecutando prueba peridodo: {}", (PERIOD_SEG*(cont.get())));
+                log.info("Running Test NUMBER: {}", (cont.get()));
                 paymentService.processPayment();
                 log.info("--------------------------------------------------");
             } catch (Exception e) {
                 log.error("Error en ejecución programada: {}", e.getMessage(), e);
             }
-        }, DELAY_INIT_SEG, PERIOD_SEG, TimeUnit.SECONDS); // 10s delay inicial, luego cada 15s
+        }, DELAY_INIT_SEG, PERIOD_SEG, TimeUnit.SECONDS); // DELAY_INIT_SEG delay inicial, luego cada PERIOD_SEG
 
         // Programar detención después de 2 minutos
         executorService.schedule(() -> {
             futureTask.cancel(false);
-            log.warn("Tarea programada detenida tras 3 minutos.");
+            log.warn("Tarea programada detenida tras {} segundos.", FINAL_TEST_SEG);
             executorService.shutdown();
-        }, 3, TimeUnit.MINUTES);
+        }, FINAL_TEST_SEG, TimeUnit.SECONDS);
     }
 }

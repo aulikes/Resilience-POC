@@ -31,11 +31,11 @@ resilience4j:
       default:
         registerHealthIndicator: true  # Enables Circuit Breaker health status to be available through Actuator
         slidingWindowSize: 10  # Number of calls that the Circuit Breaker will evaluate to calculate the failure rate (sliding window)
-        minimumNumberOfCalls: 5  # Minimum number of calls required before the Circuit Breaker evaluates whether to open or not
+        minimumNumberOfCalls: 5  # Minimum number of calls required before the Circuit Breaker in state closed evaluates whether to open or not
+        failureRateThreshold: 30  # Failure rate percentage that triggers the transition from CLOSED to OPEN
         permittedNumberOfCallsInHalfOpenState: 3  # Number of calls allowed while in HALF_OPEN state to test if the service has recovered
         automaticTransitionFromOpenToHalfOpenEnabled: true  # If enabled, the Circuit Breaker will automatically move from OPEN to HALF_OPEN after the configured time
-        waitDurationInOpenState: 30s  # Duration the Circuit Breaker remains in OPEN state before transitioning to HALF_OPEN
-        failureRateThreshold: 50  # Failure rate percentage (e.g. 50%) that triggers the transition from CLOSED to OPEN
+        waitDurationInOpenState: 35s  # Duration the Circuit Breaker remains in OPEN state before transitioning to HALF_OPEN
         eventConsumerBufferSize: 10  # Size of the event buffer used to publish events to consumers (such as logs, metrics, etc.)
         recordExceptions:
           - java.util.concurrent.TimeoutException
@@ -45,7 +45,7 @@ resilience4j:
 
   retry:
     instances:
-      processPayment:            # Nombre de la instancia del retry
+      processPaymentRetry:       # Put this in the method configured (name = processPaymentRetry)
         maxAttempts: 3           # Total attempts: 1 original + 2 retries
         waitDuration: 1s         # Wait time of 1 second between attempts
         retryExceptions:
