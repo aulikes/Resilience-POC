@@ -45,7 +45,7 @@ resilience4j:
 
   retry:
     instances:
-      pasarelaPago:
+      processPayment:            # Nombre de la instancia del retry
         maxAttempts: 3           # Total attempts: 1 original + 2 retries
         waitDuration: 1s         # Wait time of 1 second between attempts
         retryExceptions:
